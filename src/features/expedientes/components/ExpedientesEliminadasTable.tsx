@@ -1,34 +1,39 @@
 import { useState } from "react";
 import { Button, Tooltip } from "antd";
-import { EyeIcon, PencilIcon, TrashIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, EyeIcon } from "@phosphor-icons/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackDataTable } from "../../../components/TanstackDataTable/TanstackDataTable";
 import ExpedienteDetailModal from "./ExpedienteDetailModal";
-import EditarExpedienteModal from "./EditarExpedienteModal";
-import EliminarExpedienteModal from "./EliminarExpedienteModal";
+import RestaurarExpedienteModal from "./RestaurarExpedienteModal";
 
-interface ExpedientesTableProps {
+interface ExpedientesEliminadasTableProps {
   records: IExpediente[];
 }
 
-export const ExpedientesTable = ({ records }: ExpedientesTableProps) => {
+export const ExpedientesEliminadasTable = ({
+  records,
+}: ExpedientesEliminadasTableProps) => {
   const [selectedExpediente, setSelectedExpediente] =
     useState<IExpediente | null>(null);
   const [verExpedienteModalIsOpen, setVerExpedienteModalIsOpen] =
     useState(false);
-  const [editarExpedienteModalIsOpen, setEditarExpedienteModalIsOpen] =
-    useState(false);
-  const [eliminarExpedienteModalIsOpen, setEliminarExpedienteModalIsOpen] =
+  const [restaurarExpedienteModalIsOpen, setRestaurarExpedienteModalIsOpen] =
     useState(false);
 
   const handleClick = (
     expediente: IExpediente,
-    action: "view" | "edit" | "delete",
+    action: "view" | "restore",
   ) => {
-    setSelectedExpediente(expediente);
-    if (action === "view") setVerExpedienteModalIsOpen(true);
-    if (action === "edit") setEditarExpedienteModalIsOpen(true);
-    if (action === "delete") setEliminarExpedienteModalIsOpen(true);
+    switch (action) {
+      case "view":
+        setSelectedExpediente(expediente);
+        setVerExpedienteModalIsOpen(true);
+        break;
+      case "restore":
+        setSelectedExpediente(expediente);
+        setRestaurarExpedienteModalIsOpen(true);
+        break;
+    }
   };
 
   const columnHelper = createColumnHelper<IExpediente>();
@@ -58,10 +63,19 @@ export const ExpedientesTable = ({ records }: ExpedientesTableProps) => {
       header: "Ciudad",
     }),
 
+    columnHelper.accessor("deleted_at", {
+      header: "Eliminado el",
+      cell: ({ getValue }) => {
+        const value = getValue();
+        if (!value) return "-";
+        return new Date(value).toLocaleString("es-AR");
+      },
+    }),
+
     columnHelper.display({
       id: "acciones",
       header: "Acciones",
-      size: 160,
+      size: 120,
       enableColumnFilter: false,
       enableSorting: false,
       cell: ({ row }) => {
@@ -76,21 +90,12 @@ export const ExpedientesTable = ({ records }: ExpedientesTableProps) => {
                 onClick={() => handleClick(expediente, "view")}
               />
             </Tooltip>
-            <Tooltip title="Editar">
+            <Tooltip title="Restaurar">
               <Button
                 type="default"
                 size="small"
-                icon={<PencilIcon size="1.2rem" />}
-                onClick={() => handleClick(expediente, "edit")}
-              />
-            </Tooltip>
-            <Tooltip title="Eliminar">
-              <Button
-                type="default"
-                size="small"
-                danger
-                icon={<TrashIcon size="1.2rem" />}
-                onClick={() => handleClick(expediente, "delete")}
+                icon={<ArrowCounterClockwiseIcon size="1.2rem" />}
+                onClick={() => handleClick(expediente, "restore")}
               />
             </Tooltip>
           </div>
@@ -113,24 +118,13 @@ export const ExpedientesTable = ({ records }: ExpedientesTableProps) => {
         />
       )}
 
-      {selectedExpediente && editarExpedienteModalIsOpen && (
-        <EditarExpedienteModal
-          expedienteId={selectedExpediente.id}
-          editarExpedienteModalIsOpen={editarExpedienteModalIsOpen}
-          onClose={() => {
-            setSelectedExpediente(null);
-            setEditarExpedienteModalIsOpen(false);
-          }}
-        />
-      )}
-
-      {selectedExpediente && eliminarExpedienteModalIsOpen && (
-        <EliminarExpedienteModal
+      {selectedExpediente && restaurarExpedienteModalIsOpen && (
+        <RestaurarExpedienteModal
           expediente={selectedExpediente}
-          eliminarExpedienteModalIsOpen={eliminarExpedienteModalIsOpen}
+          restaurarExpedienteModalIsOpen={restaurarExpedienteModalIsOpen}
           onClose={() => {
             setSelectedExpediente(null);
-            setEliminarExpedienteModalIsOpen(false);
+            setRestaurarExpedienteModalIsOpen(false);
           }}
         />
       )}

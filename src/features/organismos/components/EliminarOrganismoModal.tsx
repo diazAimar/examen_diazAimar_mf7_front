@@ -34,7 +34,8 @@ const EliminarOrganismoModal = ({
       <div className="flex flex-col gap-6">
         <p>
           ¿Estás seguro de querer eliminar el organismo{" "}
-          <strong>{organismo?.nombre}</strong>?
+          <strong>{organismo?.nombre}</strong>? Todos los expedientes asociados
+          a este organismo también serán eliminados.
         </p>
         <div className="flex justify-end space-x-2">
           <Button type="primary" onClick={() => onClose()}>
