@@ -4,6 +4,7 @@ import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import useEditExpediente from "../../../hooks/expedientes/useEditExpediente";
 import useGetOrganismos from "../../../hooks/organismos/useGetOrganismos";
 import useGetTiposVinculo from "../../../hooks/tipos-vinculo/useGetTiposVinculo";
+import useGetPersonas from "../../../hooks/personas/useGetPersonas";
 import { handleValidationErrors } from "../../../utils/handleValidationErrors";
 import type { AxiosError } from "axios";
 import type { ApiResponse } from "../../../interfaces/api-response";
@@ -13,10 +14,8 @@ interface EditarExpedienteFormProps {
   expediente: IExpedienteDetail;
 }
 
-interface PersonaFormValues {
-  dni: string;
-  nombre: string;
-  apellido: string;
+interface PersonaVinculadaFormValues {
+  persona_id: number | null;
   tipo_vinculo: number | null;
 }
 
@@ -27,12 +26,8 @@ interface EditarExpedienteFormValues {
   anno: number | null;
   caratula: string;
   ciudad: string;
-  actor: {
-    dni: string;
-    nombre: string;
-    apellido: string;
-  };
-  personas: PersonaFormValues[];
+  actor_id: number | null;
+  personas: PersonaVinculadaFormValues[];
 }
 
 const CIUDADES = [
@@ -71,15 +66,9 @@ const EditarExpedienteForm = ({
       anno: expediente.anno,
       caratula: expediente.caratula,
       ciudad: expediente.ciudad,
-      actor: {
-        dni: actor ? String(actor.dni) : "",
-        nombre: actor?.nombre ?? "",
-        apellido: actor?.apellido ?? "",
-      },
+      actor_id: actor?.id ?? null,
       personas: otrasPersonas.map((p) => ({
-        dni: String(p.dni),
-        nombre: p.nombre,
-        apellido: p.apellido,
+        persona_id: p.id,
         tipo_vinculo: p.tipo_vinculo.id,
       })),
     },
@@ -91,25 +80,57 @@ const EditarExpedienteForm = ({
   });
 
   const { data: organismos = [] } = useGetOrganismos();
+  const { data: todasPersonas = [] } = useGetPersonas();
   const { data: tiposVinculo = [] } = useGetTiposVinculo();
   const { mutate, isPending } = useEditExpediente();
+
+  const organismoId = watch("organismo_id");
+  const actorId = watch("actor_id");
+  const personasValues = watch("personas");
+
+  const activeOrganismos = organismos.filter((o) => !o.deleted_at);
+  const activePersonas = todasPersonas.filter((p) => !p.deleted_at);
 
   const tiposVinculoOptions = tiposVinculo
     .filter((tv) => tv.id !== 1)
     .map((tv) => ({ value: tv.id, label: tv.descripcion }));
 
-  const organismoId = watch("organismo_id");
+  const allSelectedIds = [
+    actorId,
+    ...personasValues.map((p) => p.persona_id),
+  ].filter((id): id is number => id !== null);
+
+  const buildPersonaOptions = (currentRowId: number | null) =>
+    activePersonas.map((p) => ({
+      value: p.id,
+      label: `${p.apellido}, ${p.nombre} — DNI: ${p.dni}`,
+      disabled: allSelectedIds.includes(p.id) && p.id !== currentRowId,
+    }));
 
   const handleOrganismoChange = (id: number) => {
     setValue("organismo_id", id);
-    const organismo = organismos.find((o) => o.id === id);
-    if (organismo) {
-      setValue("ciudad", organismo.ciudad);
-    }
+    const organismo = activeOrganismos.find((o) => o.id === id);
+    if (organismo) setValue("ciudad", organismo.ciudad);
   };
 
   const onSubmit = (values: EditarExpedienteFormValues) => {
-    if (!values.organismo_id || !values.numero || !values.anno) return;
+    if (!values.organismo_id || !values.numero || !values.anno || !values.actor_id)
+      return;
+
+    const actorPersona = activePersonas.find((p) => p.id === values.actor_id);
+    if (!actorPersona) return;
+
+    const personasResolved = values.personas
+      .filter((p) => p.persona_id !== null && p.tipo_vinculo !== null)
+      .map((p) => {
+        const persona = activePersonas.find((ap) => ap.id === p.persona_id)!;
+        return {
+          dni: Number(persona.dni),
+          nombre: persona.nombre,
+          apellido: persona.apellido,
+          tipo_vinculo: p.tipo_vinculo!,
+        };
+      });
 
     mutate(
       {
@@ -121,16 +142,11 @@ const EditarExpedienteForm = ({
         caratula: values.caratula,
         ciudad: values.ciudad,
         actor: {
-          dni: Number(values.actor.dni),
-          nombre: values.actor.nombre,
-          apellido: values.actor.apellido,
+          dni: Number(actorPersona.dni),
+          nombre: actorPersona.nombre,
+          apellido: actorPersona.apellido,
         },
-        personas: values.personas.map((p) => ({
-          dni: Number(p.dni),
-          nombre: p.nombre,
-          apellido: p.apellido,
-          tipo_vinculo: p.tipo_vinculo!,
-        })),
+        personas: personasResolved,
       },
       {
         onSuccess: () => {
@@ -171,7 +187,7 @@ const EditarExpedienteForm = ({
                 optionFilterProp="label"
                 placeholder="Seleccionar organismo"
                 onChange={handleOrganismoChange}
-                options={organismos.map((o) => ({
+                options={activeOrganismos.map((o) => ({
                   value: o.id,
                   label: `${o.codigo} — ${o.nombre}`,
                 }))}
@@ -276,72 +292,46 @@ const EditarExpedienteForm = ({
         </Form.Item>
       </div>
 
-      <Divider orientation="left" className="!mt-0">
+      <Divider titlePlacement="start" className="!mt-0">
         Actor (Parte Actora)
       </Divider>
 
-      <div className="grid grid-cols-3 gap-x-4">
-        <Form.Item
-          label="DNI"
-          validateStatus={errors.actor?.dni ? "error" : ""}
-          help={errors.actor?.dni?.message}
-        >
-          <Controller
-            name="actor.dni"
-            control={control}
-            rules={{ required: "El DNI es requerido" }}
-            render={({ field }) => (
-              <Input {...field} placeholder="Ej: 30123456" />
-            )}
-          />
-        </Form.Item>
+      <Form.Item
+        validateStatus={errors.actor_id ? "error" : ""}
+        help={errors.actor_id?.message}
+      >
+        <Controller
+          name="actor_id"
+          control={control}
+          rules={{ required: "El actor es requerido" }}
+          render={({ field }) => (
+            <Select
+              {...field}
+              showSearch
+              optionFilterProp="label"
+              placeholder="Seleccionar actor"
+              options={buildPersonaOptions(actorId)}
+            />
+          )}
+        />
+      </Form.Item>
 
-        <Form.Item
-          label="Nombre"
-          validateStatus={errors.actor?.nombre ? "error" : ""}
-          help={errors.actor?.nombre?.message}
-        >
-          <Controller
-            name="actor.nombre"
-            control={control}
-            rules={{ required: "El nombre es requerido" }}
-            render={({ field }) => (
-              <Input {...field} placeholder="Ej: Juan" />
-            )}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="Apellido"
-          validateStatus={errors.actor?.apellido ? "error" : ""}
-          help={errors.actor?.apellido?.message}
-        >
-          <Controller
-            name="actor.apellido"
-            control={control}
-            rules={{ required: "El apellido es requerido" }}
-            render={({ field }) => (
-              <Input {...field} placeholder="Ej: Pérez" />
-            )}
-          />
-        </Form.Item>
-      </div>
-
-      <Divider orientation="left" className="!mt-0">
+      <Divider titlePlacement="start" className="!mt-0">
         Personas Vinculadas
       </Divider>
 
       <div className="flex flex-col gap-3">
-        {fields.map((field, index) => (
-          <div
-            key={field.id}
-            className="rounded-lg border border-default-200 p-3"
-          >
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground/70">
-                Persona {index + 1}
-              </span>
-              {fields.length > 1 && (
+        {fields.map((field, index) => {
+          const currentPersonaId = personasValues[index]?.persona_id ?? null;
+          return (
+            <div
+              key={field.id}
+              className="rounded-lg border border-default-200 p-3"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground/70">
+                  Persona {index + 1}
+                </span>
                 <Button
                   type="text"
                   danger
@@ -349,93 +339,63 @@ const EditarExpedienteForm = ({
                   icon={<TrashIcon size="1rem" />}
                   onClick={() => remove(index)}
                 />
-              )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-4">
+                <Form.Item
+                  label="Persona"
+                  validateStatus={
+                    errors.personas?.[index]?.persona_id ? "error" : ""
+                  }
+                  help={errors.personas?.[index]?.persona_id?.message}
+                >
+                  <Controller
+                    name={`personas.${index}.persona_id`}
+                    control={control}
+                    rules={{ required: "La persona es requerida" }}
+                    render={({ field: f }) => (
+                      <Select
+                        {...f}
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder="Seleccionar persona"
+                        options={buildPersonaOptions(currentPersonaId)}
+                      />
+                    )}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="Tipo de Vínculo"
+                  validateStatus={
+                    errors.personas?.[index]?.tipo_vinculo ? "error" : ""
+                  }
+                  help={errors.personas?.[index]?.tipo_vinculo?.message}
+                >
+                  <Controller
+                    name={`personas.${index}.tipo_vinculo`}
+                    control={control}
+                    rules={{ required: "El tipo de vínculo es requerido" }}
+                    render={({ field: f }) => (
+                      <Select
+                        {...f}
+                        placeholder="Vínculo"
+                        options={tiposVinculoOptions}
+                      />
+                    )}
+                  />
+                </Form.Item>
+              </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-x-4">
-              <Form.Item
-                label="DNI"
-                validateStatus={
-                  errors.personas?.[index]?.dni ? "error" : ""
-                }
-                help={errors.personas?.[index]?.dni?.message}
-              >
-                <Controller
-                  name={`personas.${index}.dni`}
-                  control={control}
-                  rules={{ required: "El DNI es requerido" }}
-                  render={({ field: f }) => (
-                    <Input {...f} placeholder="Ej: 28987654" />
-                  )}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Tipo de Vínculo"
-                validateStatus={
-                  errors.personas?.[index]?.tipo_vinculo ? "error" : ""
-                }
-                help={errors.personas?.[index]?.tipo_vinculo?.message}
-              >
-                <Controller
-                  name={`personas.${index}.tipo_vinculo`}
-                  control={control}
-                  rules={{ required: "El tipo de vínculo es requerido" }}
-                  render={({ field: f }) => (
-                    <Select
-                      {...f}
-                      placeholder="Vínculo"
-                      options={tiposVinculoOptions}
-                    />
-                  )}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Nombre"
-                validateStatus={
-                  errors.personas?.[index]?.nombre ? "error" : ""
-                }
-                help={errors.personas?.[index]?.nombre?.message}
-              >
-                <Controller
-                  name={`personas.${index}.nombre`}
-                  control={control}
-                  rules={{ required: "El nombre es requerido" }}
-                  render={({ field: f }) => (
-                    <Input {...f} placeholder="Ej: María" />
-                  )}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Apellido"
-                validateStatus={
-                  errors.personas?.[index]?.apellido ? "error" : ""
-                }
-                help={errors.personas?.[index]?.apellido?.message}
-              >
-                <Controller
-                  name={`personas.${index}.apellido`}
-                  control={control}
-                  rules={{ required: "El apellido es requerido" }}
-                  render={({ field: f }) => (
-                    <Input {...f} placeholder="Ej: García" />
-                  )}
-                />
-              </Form.Item>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         <Button
           type="dashed"
           icon={<PlusIcon size="1rem" />}
-          onClick={() =>
-            append({ dni: "", nombre: "", apellido: "", tipo_vinculo: null })
-          }
+          onClick={() => append({ persona_id: null, tipo_vinculo: null })}
         >
-          Agregar persona
+          Agregar persona vinculada
         </Button>
       </div>
 
