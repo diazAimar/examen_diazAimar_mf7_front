@@ -75,7 +75,13 @@ const EditarPersonaForm = ({ onSuccess, persona }: EditarPersonaFormProps) => {
           control={control}
           rules={{ required: "El DNI es requerido" }}
           render={({ field }) => (
-            <InputNumber {...field} placeholder="Ej: 41092025" className="w-full!" />
+            <InputNumber
+              {...field}
+              placeholder="Ej: 41092025"
+              className="w-full!"
+              min={1000000}
+              max={99999999}
+            />
           )}
         />
       </Form.Item>

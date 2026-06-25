@@ -1,4 +1,4 @@
-import { Button, Input, Form } from "antd";
+import { Button, Input, Form, InputNumber } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import useCreatePersona from "../../../hooks/personas/useCreatePersona";
 import { handleValidationErrors } from "../../../utils/handleValidationErrors";
@@ -57,7 +57,13 @@ const CrearPersonaForm = ({ onSuccess }: CrearPersonaFormProps) => {
           control={control}
           rules={{ required: "El DNI es requerido" }}
           render={({ field }) => (
-            <Input {...field} placeholder="Ej: 41092025" />
+            <InputNumber
+              {...field}
+              placeholder="Ej: 41092025"
+              className="w-full!"
+              min={1000000}
+              max={99999999}
+            />
           )}
         />
       </Form.Item>
