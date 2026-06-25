@@ -5,3 +5,9 @@ export const DELETE_PERSONA_BY_ID_MUTATION_KEY = "deletePersonaById";
 export const CREATE_PERSONA_MUTATION_KEY = "createPersona";
 export const RESTORE_PERSONA_MUTATION_KEY = "restorePersona";
 export const EDIT_PERSONA_MUTATION_KEY = "editPersona";
+
+export const GET_ORGANISMOS_QUERY_KEY = "getOrganismos";
+export const GET_ORGANISMO_BY_ID_QUERY_KEY = "getOrganismoById";
+export const DELETE_ORGANISMO_BY_ID_MUTATION_KEY = "deleteOrganismoById";
+export const CREATE_ORGANISMO_MUTATION_KEY = "createOrganismo";
+export const EDIT_ORGANISMO_MUTATION_KEY = "editOrganismo";
