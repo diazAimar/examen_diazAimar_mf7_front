@@ -4,18 +4,41 @@ import { EyeIcon, PencilIcon, TrashIcon } from "@phosphor-icons/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackDataTable } from "../../../components/TanstackDataTable/TanstackDataTable";
 import { PersonaDetailModal } from "./PersonaDetailModal";
+import EditarPersonaModal from "./EditarPersonaModal";
+import EliminarPersonaModal from "./EliminarPersonaModal";
 
 interface PersonasTableProps {
   records: IPersona[];
 }
 
 export const PersonasTable = ({ records }: PersonasTableProps) => {
-  const [selectedPersonaId, setSelectedPersonaId] = useState<number | null>(
+  const [selectedPersona, setSelectedPersona] = useState<IPersona | null>(
     null,
   );
+  const [verPersonaModalIsOpen, setVerPersonaModalIsOpen] = useState(false);
+  const [editarPersonaModalIsOpen, setEditarPersonaModalIsOpen] =
+    useState(false);
+  const [eliminarPersonaModalIsOpen, setEliminarPersonaModalIsOpen] =
+    useState(false);
 
-  const handleView = (persona: IPersona) => {
-    setSelectedPersonaId(persona.id);
+  const handleClick = (
+    persona: IPersona,
+    action: "view" | "edit" | "delete",
+  ) => {
+    switch (action) {
+      case "view":
+        setSelectedPersona(persona);
+        setVerPersonaModalIsOpen(true);
+        break;
+      case "edit":
+        setSelectedPersona(persona);
+        setEditarPersonaModalIsOpen(true);
+        break;
+      case "delete":
+        setSelectedPersona(persona);
+        setEliminarPersonaModalIsOpen(true);
+        break;
+    }
   };
 
   const columnHelper = createColumnHelper<IPersona>();
@@ -52,7 +75,24 @@ export const PersonasTable = ({ records }: PersonasTableProps) => {
                 type="primary"
                 size="small"
                 icon={<EyeIcon size="1.2rem" />}
-                onClick={() => handleView(persona)}
+                onClick={() => handleClick(persona, "view")}
+              />
+            </Tooltip>
+            <Tooltip title="Editar">
+              <Button
+                type="default"
+                size="small"
+                icon={<PencilIcon size="1.2rem" />}
+                onClick={() => handleClick(persona, "edit")}
+              />
+            </Tooltip>
+            <Tooltip title="Eliminar">
+              <Button
+                type="default"
+                size="small"
+                danger
+                icon={<TrashIcon size="1.2rem" />}
+                onClick={() => handleClick(persona, "delete")}
               />
             </Tooltip>
           </div>
@@ -64,10 +104,36 @@ export const PersonasTable = ({ records }: PersonasTableProps) => {
   return (
     <>
       <TanstackDataTable data={records} columns={columns} />
-      <PersonaDetailModal
-        personaId={selectedPersonaId}
-        onClose={() => setSelectedPersonaId(null)}
-      />
+
+      {selectedPersona && verPersonaModalIsOpen && (
+        <PersonaDetailModal
+          persona={selectedPersona}
+          onClose={() => {
+            setSelectedPersona(null);
+            setVerPersonaModalIsOpen(false);
+          }}
+        />
+      )}
+      {selectedPersona && editarPersonaModalIsOpen && (
+        <EditarPersonaModal
+          persona={selectedPersona}
+          editarPersonaModalIsOpen={editarPersonaModalIsOpen}
+          onClose={() => {
+            setSelectedPersona(null);
+            setEditarPersonaModalIsOpen(false);
+          }}
+        />
+      )}
+      {selectedPersona && eliminarPersonaModalIsOpen && (
+        <EliminarPersonaModal
+          persona={selectedPersona}
+          eliminarPersonaModalIsOpen={eliminarPersonaModalIsOpen}
+          onClose={() => {
+            setSelectedPersona(null);
+            setEliminarPersonaModalIsOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

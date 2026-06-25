@@ -4,7 +4,7 @@ import { TanstackDataTable } from "../../../components/TanstackDataTable/Tanstac
 import useGetPersonaById from "../../../hooks/personas/useGetPersonaById";
 
 interface PersonaDetailModalProps {
-  personaId: number | null;
+  persona: IPersona | null;
   onClose: () => void;
 }
 
@@ -19,14 +19,14 @@ const expedienteColumns = [
 ];
 
 export const PersonaDetailModal = ({
-  personaId,
+  persona,
   onClose,
 }: PersonaDetailModalProps) => {
-  const { data, isLoading, error } = useGetPersonaById(personaId);
+  const { data, isLoading, error } = useGetPersonaById(persona.id);
 
   return (
     <Modal
-      open={personaId !== null}
+      open={persona !== null}
       onCancel={onClose}
       footer={null}
       title="Detalle de Persona"
