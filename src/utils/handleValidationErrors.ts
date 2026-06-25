@@ -1,0 +1,21 @@
+import type { AxiosError } from "axios";
+import type { ApiResponse } from "../interfaces/api-response";
+import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
+
+export const handleValidationErrors = <T extends FieldValues>(
+  error: AxiosError<ApiResponse<null>>,
+  setError: UseFormSetError<T>,
+) => {
+  const axiosError = error;
+  const errorData = axiosError.response?.data;
+  if (axiosError.response?.status === 422 && errorData?.validationErrors) {
+    Object.entries(errorData.validationErrors).forEach(([, message]) => {
+      if (message) {
+        setError(message.key as Path<T>, {
+          type: "server",
+          message: message.message,
+        });
+      }
+    });
+  }
+};
