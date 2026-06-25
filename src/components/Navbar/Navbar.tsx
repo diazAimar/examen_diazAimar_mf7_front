@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 
 const navItems = [
+  { label: "Inicio", path: "/" },
   { label: "Expedientes", path: "/expedientes" },
   { label: "Personas", path: "/personas" },
   { label: "Organismos", path: "/organismos" },
-  { label: "Dashboard", path: "/dashboard" },
 ] as const;
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
