@@ -107,8 +107,8 @@ const EditarExpedienteForm = ({
       disabled: allSelectedIds.includes(p.id) && p.id !== currentRowId,
     }));
 
-  const handleOrganismoChange = (id: number) => {
-    setValue("organismo_id", id);
+  const handleOrganismoChange = (id: number, rhfOnChange: (v: number) => void) => {
+    rhfOnChange(id);
     const organismo = activeOrganismos.find((o) => o.id === id);
     if (organismo) setValue("ciudad", organismo.ciudad);
   };
@@ -184,9 +184,8 @@ const EditarExpedienteForm = ({
               <Select
                 {...field}
                 showSearch
-                optionFilterProp="label"
                 placeholder="Seleccionar organismo"
-                onChange={handleOrganismoChange}
+                onChange={(id) => handleOrganismoChange(id, field.onChange)}
                 options={activeOrganismos.map((o) => ({
                   value: o.id,
                   label: `${o.codigo} — ${o.nombre}`,
@@ -308,7 +307,6 @@ const EditarExpedienteForm = ({
             <Select
               {...field}
               showSearch
-              optionFilterProp="label"
               placeholder="Seleccionar actor"
               options={buildPersonaOptions(actorId)}
             />
@@ -357,7 +355,6 @@ const EditarExpedienteForm = ({
                       <Select
                         {...f}
                         showSearch
-                        optionFilterProp="label"
                         placeholder="Seleccionar persona"
                         options={buildPersonaOptions(currentPersonaId)}
                       />

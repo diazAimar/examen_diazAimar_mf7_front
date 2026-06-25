@@ -95,8 +95,8 @@ const CrearExpedienteForm = ({ onSuccess }: CrearExpedienteFormProps) => {
       disabled: allSelectedIds.includes(p.id) && p.id !== currentRowId,
     }));
 
-  const handleOrganismoChange = (id: number) => {
-    setValue("organismo_id", id);
+  const handleOrganismoChange = (id: number, rhfOnChange: (v: number) => void) => {
+    rhfOnChange(id);
     const organismo = activeOrganismos.find((o) => o.id === id);
     if (organismo) setValue("ciudad", organismo.ciudad);
   };
@@ -171,9 +171,8 @@ const CrearExpedienteForm = ({ onSuccess }: CrearExpedienteFormProps) => {
               <Select
                 {...field}
                 showSearch
-                optionFilterProp="label"
                 placeholder="Seleccionar organismo"
-                onChange={handleOrganismoChange}
+                onChange={(id) => handleOrganismoChange(id, field.onChange)}
                 options={activeOrganismos.map((o) => ({
                   value: o.id,
                   label: `${o.codigo} — ${o.nombre}`,
@@ -299,7 +298,6 @@ const CrearExpedienteForm = ({ onSuccess }: CrearExpedienteFormProps) => {
             <Select
               {...field}
               showSearch
-              optionFilterProp="label"
               placeholder="Seleccionar actor"
               options={buildPersonaOptions(actorId)}
             />
@@ -348,7 +346,6 @@ const CrearExpedienteForm = ({ onSuccess }: CrearExpedienteFormProps) => {
                       <Select
                         {...f}
                         showSearch
-                        optionFilterProp="label"
                         placeholder="Seleccionar persona"
                         options={buildPersonaOptions(currentPersonaId)}
                       />
