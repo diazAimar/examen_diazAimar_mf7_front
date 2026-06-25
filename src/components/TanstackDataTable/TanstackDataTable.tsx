@@ -169,15 +169,18 @@ export function TanstackDataTable<TData>({
         />
       )}
 
-      <Table<TableRecord<TData>>
-        columns={antdColumns}
-        showSorterTooltip={false}
-        dataSource={dataSource}
-        rowKey="__rowKey"
-        onChange={handleTableChange}
-        pagination={false}
-        locale={{ emptyText: <Empty description="Sin registros" /> }}
-      />
+      <div className="overflow-x-auto">
+        <Table<TableRecord<TData>>
+          columns={antdColumns}
+          showSorterTooltip={false}
+          dataSource={dataSource}
+          rowKey="__rowKey"
+          onChange={handleTableChange}
+          pagination={false}
+          scroll={{ x: "max-content" }}
+          locale={{ emptyText: <Empty description="Sin registros" /> }}
+        />
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Space>
