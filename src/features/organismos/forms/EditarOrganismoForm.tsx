@@ -101,9 +101,10 @@ const EditarOrganismoForm = ({ onSuccess, organismo }: EditarOrganismoFormProps)
               defaultValue={organismo.fuero}
               onChange={field.onChange}
               options={[
-                { value: "Neuquén", label: "Neuquén" },
-                { value: "Zapala", label: "Zapala" },
-                { value: "Junín de los Andes", label: "Junín de los Andes" },
+                { value: "Ejecutivos", label: "Ejecutivos" },
+                { value: "Civil", label: "Civil" },
+                { value: "Laboral", label: "Laboral" },
+                { value: "Familia", label: "Familia" },
               ]}
             />
           )}
