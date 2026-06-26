@@ -1,73 +1,27 @@
-# React + TypeScript + Vite
+# Examen Poder Judicial - Diaz Aimar Federico
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Frontend
 
-Currently, two official plugins are available:
+## Instructivo instalación/ejecución del exámen:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Pre-requisitos
 
-## React Compiler
+- Git
+- Node y npm/pnpm
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Clonar repositorio
 
-## Expanding the ESLint configuration
+- Clonar el repositorio https://github.com/diazAimar/examen_diazAimar_mf7_front
+- En caso de no estarlo, situarse en la rama main (`git checkout main`)
+- Copiar el archivo `.env.example`, y renombrarlo como `.env`.
+- Instalar las dependencias necesarias con el comando `npm install` o `pnpm install`
+- Por ultimo, ejecutar el comando `npm run dev` o `pnpm run dev` para inicializar el proyecto.
+- Ingresar al proyecto: http://localhost:5173
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Tecnologías principales utilizadas
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+#### Cliente
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- [Ant Design](https://ant.design/) como librería de componentes
+- [react-hook-form](https://react-hook-form.com/) para el estado de los formularios, en conjunto con los componentes de Ant Design
+- [@tanstack/react-query](https://tanstack.com/query/latest) para el manejo global de estados asíncronos y [@tanstack/react-table](https://tanstack.com/table/latest) para el diseño de tablas
