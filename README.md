@@ -7,15 +7,15 @@
 ### Pre-requisitos
 
 - Git
-- Node y npm/pnpm
+- Node y pnpm
 
 ### Clonar repositorio
 
 - Clonar el repositorio https://github.com/diazAimar/examen_diazAimar_mf7_front
 - En caso de no estarlo, situarse en la rama main (`git checkout main`)
 - Copiar el archivo `.env.example`, y renombrarlo como `.env`.
-- Instalar las dependencias necesarias con el comando `npm install` o `pnpm install`
-- Por ultimo, ejecutar el comando `npm run dev` o `pnpm run dev` para inicializar el proyecto.
+- Instalar las dependencias necesarias con el comando `pnpm install`
+- Por ultimo, ejecutar el comando `pnpm run dev` para inicializar el proyecto.
 - Ingresar al proyecto: http://localhost:5173
 
 ### Tecnologías principales utilizadas
