@@ -11,19 +11,22 @@ export const handleValidationErrors = <T extends FieldValues>(
   const errorData = axiosError.response?.data;
 
   if (axiosError.response?.status === 422 && errorData?.validationErrors) {
-    Object.entries(errorData.validationErrors).forEach(([, validationError]) => {
-      if (validationError) {
-        setError(validationError.key as Path<T>, {
-          type: "server",
-          message: validationError.message,
-        });
-      }
-    });
+    Object.entries(errorData.validationErrors).forEach(
+      ([, validationError]) => {
+        if (validationError) {
+          setError(validationError.key as Path<T>, {
+            type: "server",
+            message: validationError.message,
+          });
+        }
+      },
+    );
     return;
   }
 
-  const genericMessage =
+  const raw =
     errorData?.error ??
     "Ocurrió un error inesperado. Por favor, intente nuevamente.";
+  const genericMessage = typeof raw === "string" ? raw : JSON.stringify(raw);
   message.error(genericMessage);
 };
