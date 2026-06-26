@@ -1,10 +1,10 @@
-import { Modal, Descriptions, Spin, Alert, Tag } from "antd";
+import { Modal, Descriptions, Spin, Alert } from "antd";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackDataTable } from "../../../components/TanstackDataTable/TanstackDataTable";
 import useGetPersonaById from "../../../hooks/personas/useGetPersonaById";
 
 interface PersonaDetailModalProps {
-  persona: IPersona | null;
+  persona: IPersona;
   onClose: () => void;
 }
 
@@ -14,8 +14,8 @@ const expedienteColumns = [
   columnHelper.accessor("clave", { header: "Clave" }),
   columnHelper.accessor("caratula", { header: "Carátula" }),
   columnHelper.accessor("ciudad", { header: "Ciudad" }),
-  columnHelper.accessor("organismo.nombre", { header: "Organismo" }),
-  columnHelper.accessor("tipo_vinculo.descripcion", { header: "Tipo de Vinculo" }),
+  columnHelper.accessor((row) => (row as any).organismo?.nombre ?? "", { id: "organismo", header: "Organismo" }),
+  columnHelper.accessor((row) => (row as any).tipo_vinculo?.descripcion ?? "", { id: "tipo_vinculo", header: "Tipo de Vinculo" }),
 ];
 
 export const PersonaDetailModal = ({
@@ -26,7 +26,7 @@ export const PersonaDetailModal = ({
 
   return (
     <Modal
-      open={persona !== null}
+      open={true}
       onCancel={onClose}
       footer={null}
       title="Detalle de Persona"

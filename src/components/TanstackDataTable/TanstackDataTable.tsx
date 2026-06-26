@@ -22,7 +22,8 @@ import type { ColumnsType, TableProps } from "antd/es/table";
 
 interface TanstackDataTableProps<TData> {
   data: TData[];
-  columns: ColumnDef<TData, unknown>[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  columns: ColumnDef<TData, any>[];
 }
 
 type TableRecord<TData> = TData & { __rowKey: string };

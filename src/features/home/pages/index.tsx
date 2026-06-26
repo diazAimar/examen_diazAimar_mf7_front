@@ -29,7 +29,7 @@ const HomePage = () => {
   );
 
   const generalPivoted = useMemo(() => {
-    const map: Record<string, Record<string, number> & { label: string; anno: number; ciudad: string }> = {};
+    const map: Record<string, { label: string; anno: number; ciudad: string; [key: string]: string | number }> = {};
     for (const row of data?.general ?? []) {
       const key = `${row.anno}|${row.ciudad}`;
       if (!map[key]) {
@@ -100,7 +100,7 @@ const HomePage = () => {
                     <XAxis dataKey="anno" tick={{ fontSize: 13 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 13 }} />
                     <Tooltip
-                      formatter={(value: number) => [value, "Expedientes"]}
+                      formatter={(value) => [Number(value), "Expedientes"]}
                       labelFormatter={(label) => `Año ${label}`}
                     />
                     <Bar dataKey="cantidad" fill="#6366f1" radius={[4, 4, 0, 0]} />
@@ -126,7 +126,7 @@ const HomePage = () => {
                       width={90}
                     />
                     <Tooltip
-                      formatter={(value: number) => [value, "Expedientes"]}
+                      formatter={(value) => [Number(value), "Expedientes"]}
                     />
                     <Bar dataKey="cantidad" fill="#22c55e" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -147,8 +147,8 @@ const HomePage = () => {
                       cx="50%"
                       cy="50%"
                       outerRadius={100}
-                      label={({ ciudad, percent }) =>
-                        `${ciudad} (${(percent * 100).toFixed(0)}%)`
+                      label={(props: any) =>
+                        `${props.ciudad} (${((props.percent ?? 0) * 100).toFixed(0)}%)`
                       }
                       labelLine
                     >
@@ -160,7 +160,7 @@ const HomePage = () => {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => [value, "Expedientes"]}
+                      formatter={(value) => [Number(value), "Expedientes"]}
                     />
                     <Legend />
                   </PieChart>

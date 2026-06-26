@@ -5,7 +5,7 @@ import EditarPersonaForm from "../forms/EditarPersonaForm";
 interface EditarPersonaModalProps {
   editarPersonaModalIsOpen: boolean;
   onClose: () => void;
-  persona: IPersona | null;
+  persona: IPersona;
 }
 
 const EditarPersonaModal = ({

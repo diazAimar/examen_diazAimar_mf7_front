@@ -1,6 +1,5 @@
 import { Button, Input, Form, InputNumber } from "antd";
 import { useForm, Controller } from "react-hook-form";
-import useCreatePersona from "../../../hooks/personas/useCreatePersona";
 import { handleValidationErrors } from "../../../utils/handleValidationErrors";
 import type { AxiosError } from "axios";
 import type { ApiResponse } from "../../../interfaces/api-response";
@@ -38,7 +37,7 @@ const EditarPersonaForm = ({ onSuccess, persona }: EditarPersonaFormProps) => {
 
   const onSubmit = (values: EditarPersonaFormValues) => {
     mutate(
-      { id: persona.id, ...values },
+      values,
       {
         onSuccess: () => {
           reset();
